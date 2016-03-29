@@ -1,6 +1,8 @@
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JButton;
+
 
 class BombListener extends MouseAdapter {
 	private GameUIClient game;
@@ -11,8 +13,12 @@ class BombListener extends MouseAdapter {
 		this.panel = p;
 	}
 	public void mouseReleased(MouseEvent e){
+		
 		System.out.println("block"+panel);
+		
+		game.computeScore(panel);
 		game.sendCurrentBombGrid(panel);
-		game.processBombGrid(panel);
+		
+		//game.processBombGrid(panel);
 	}
 }

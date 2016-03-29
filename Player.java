@@ -9,6 +9,7 @@ public class Player {
 	private boolean myTurn;
 	public Player(String name){
 		this.name = name;
+		score = 0;
 	}
 	public void setName(String name){
 		this.name = name;
@@ -30,6 +31,9 @@ public class Player {
 	}
 	public int getScore(){
 		return this.score;
+	}
+	public void addScore(){
+		this.score = this.score+1;
 	}
 	public String getName(){
 		return this.name;

@@ -21,13 +21,14 @@ import javax.swing.JTextArea;
 public class Server extends JPanel{
 	static ArrayList<PrintWriter> clientList;
 	static ArrayList<Integer> clientID;
+	static ArrayList<TestRunnable> clientRunnable;
 	static final int POOL_SIZE = 10;
 	static Executor execs = Executors.newFixedThreadPool(POOL_SIZE);
 	static int numClients = 0;
 	static String inputLine;
 	static JTextArea showUser;
 	
-	 static ServerSocket server;
+	static ServerSocket server;
 	private ObjectInputStream in;
 	private Socket conn;
 	private String host;
@@ -39,19 +40,7 @@ public class Server extends JPanel{
 		InetAddress addrhost = InetAddress.getByName("127.0.0.1");;
 		server = new ServerSocket(1256);
 		
-		/*InetAddress addrhost;
-		client = new ClientThread[2];
-		try {
-			addrhost = InetAddress.getByName("127.0.0.1");
-			server = new ServerSocket(5000);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		//server = new ServerSocket(port,host);
+		
 	}
 	public void setGUI(){
 		showUser = new JTextArea();
@@ -65,15 +54,19 @@ public class Server extends JPanel{
 			System.out.println("Waiting for a Client ...");
 			Socket con = server.accept();
 		//	System.out.println(clientList.toString());
+			
+			TestRunnable r = new TestRunnable(numClients,con);
 			numClients++;
-			Runnable r = new TestRunnable(numClients,con);
 			execs.execute(r);
+			clientRunnable.add(r);
+			
 		}
 		
 	}
 	public static void main(String[] args) throws IOException{
 		clientList = new ArrayList<PrintWriter>();
 		clientID = new ArrayList<Integer>();
+		clientRunnable = new ArrayList<TestRunnable>();
 		JFrame mainFrame =  new JFrame();
 		Server s = new Server();
 		mainFrame.add(s);
@@ -81,16 +74,19 @@ public class Server extends JPanel{
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setVisible(true);
 		s.startPlay();
-		
+		Main.player1 = new Player("Por");
+		Main.player2 = new Player("Ezreal");
 		
 	}
 	//server for each one to handle dataflow
 	class TestRunnable implements Runnable{
 		int id;
 		Socket con;
+		int pairId;
 		
 		final int NUM_REPEAT = 5;
 		public TestRunnable(int id,Socket con){
+			this.pairId = -1;
 			this.id = id;
 			this.con = con;
 			System.out.println("Client #"+id+" is connected.");
@@ -100,14 +96,29 @@ public class Server extends JPanel{
 		public String echo(String msg){
 			return "Client #"+id+": "+msg;
 		}
-		
+		public void setPairID(int pairId){
+			this.pairId = pairId;
+		}
 		public void broadcast(String msg){
 	    	for(PrintWriter p:Server.clientList){
 	    		p.println(msg);
 	    	}
 		}
 		public void randomTurn(){
-			
+			int random = (int)(Math.random()*1.99999);
+			if(random == 0){
+				// you go 2nd
+				Server.clientList.get(pairId).println("TFirst");
+				// opponent 1st
+				Server.clientList.get(id).println("TSecond");
+			} else {
+				// you opponent last , you go first
+				Server.clientList.get(pairId).println("TSecond");
+				Server.clientList.get(id).println("TFirst");
+			}
+		}
+		public void sendToPair(String msg){
+			Server.clientList.get(pairId).println(msg);
 		}
 		@Override
 		public void run() {
@@ -125,7 +136,12 @@ public class Server extends JPanel{
 		            	out.println("Waiting for Another Player");
 		            } 
 		            if (Server.numClients == 2){
-		            	out.println("Start");
+		            	Server.clientRunnable.get(0).setPairID(1);
+		            	Server.clientRunnable.get(1).setPairID(0);
+		            	//Start will synchronize the bombBoard
+		            	out.println("Start"); 
+		            	//Send random Turn
+		            	this.randomTurn();
 		            	
 		            }
 		           
@@ -138,7 +154,8 @@ public class Server extends JPanel{
 	            		broadcast(Server.inputLine);
 	            	} else {
 		              Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");
-		              broadcast(Server.inputLine);
+		              //broadcast(Server.inputLine);
+		              sendToPair(Server.inputLine);
 	            	} 
 		         }
 				System.out.println("Client#"+id+" has left.");
@@ -156,6 +173,7 @@ public class Server extends JPanel{
 				if(Server.clientID.get(i) == id){
 					Server.clientList.remove(i);
 					Server.clientID.remove(i);
+					Server.clientRunnable.remove(i);
 					broadcast("Client #"+id+" has left.");
 					return;
 				}

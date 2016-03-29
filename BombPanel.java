@@ -20,23 +20,33 @@ public class BombPanel extends JPanel{
 	private BufferedImage bombImg;
 	private BufferedImage freeImg;
 	private JLabel showImage;
+	private ImageIcon question;
 	private JButton button;
+	private BombListener bombListener;
 	public BombPanel(){
 		super();
 		isBomb = false;
 		isClickable = true;
+		Image ques = null;
 		try {
+			ques = ImageIO.read(new File("question.gif"));
 			bombImg = ImageIO.read(new File("bomb.gif"));
 			freeImg = ImageIO.read(new File("free.gif"));
 		} catch (IOException e) {
 			System.out.println(e.toString());
 		}
+		Image newImg = ques.getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+		question = new ImageIcon(newImg);
 		button = new JButton();
 		Border thickBorder = new LineBorder(Color.WHITE, 1);
 		button.setBorder(thickBorder);
 		button.setPreferredSize(new Dimension(150,150));
+		
+		button.setIcon(question);
+		//button.setDisabledIcon(question);
+		
 		button.addActionListener(new ActionListener(){
-	
+		
 
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
@@ -50,9 +60,18 @@ public class BombPanel extends JPanel{
 		this.randomBomb();
 		
 	}
+	
 	public void setBomb(boolean bomb){
 		this.isBomb = bomb;
 		this.resetShowImage();
+	}
+	public void setButtonDisable(){
+		this.button.setEnabled(false);
+		this.removeBombListner();
+	}
+	public void setButtonEnable(){
+		this.button.setEnabled(true);
+		this.addBombListner();
 	}
 	public void resetShowImage(){
 		if(isBomb)setImage = bombImg;
@@ -74,10 +93,18 @@ public class BombPanel extends JPanel{
 	}
 	public void clickButton(){
 		if(isClickable){
+			this.removeBombListner();
 			button.doClick();
 		}
 	}
+	public void removeBombListner(){
+		button.removeMouseListener(this.bombListener);
+	}
+	public void addBombListner(){
+		button.addMouseListener(this.bombListener);
+	}
 	public void setButtonListener(BombListener b){
+		this.bombListener = b;
 		button.addMouseListener(b);
 	}
 	/*protected void paintComponent(Graphics g){
