@@ -33,7 +33,7 @@ public class Player {
 		return this.score;
 	}
 	public void addScore(){
-		this.score = this.score+1;
+		this.score++;
 	}
 	public String getName(){
 		return this.name;

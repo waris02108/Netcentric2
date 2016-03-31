@@ -151,8 +151,12 @@ public class Server extends JPanel{
 		            
 	            while ((Server.inputLine = in.readLine()) != null) {
 	            	if(Server.inputLine.startsWith("F")){
-	            		broadcast(Server.inputLine);
-	            	} else {
+	            		sendToPair(Server.inputLine);
+	            	} else if (Server.inputLine.equals("NextTurn")){
+	            		sendToPair("TimeYourTurn");
+	            	}
+	            	
+	            	else {
 		              Server.showUser.append("Client #"+id+": "+Server.inputLine+"\n");
 		              //broadcast(Server.inputLine);
 		              sendToPair(Server.inputLine);

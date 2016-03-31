@@ -12,6 +12,7 @@ class BombListener extends MouseAdapter {
 		this.game = g;
 		this.panel = p;
 	}
+	
 	public void mouseReleased(MouseEvent e){
 		
 		System.out.println("block"+panel);

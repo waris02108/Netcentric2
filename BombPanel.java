@@ -53,7 +53,7 @@ public class BombPanel extends JPanel{
 				button.setVisible(false);
 				showImage.setVisible(true);
 				isClickable=false;
-				System.out.println((isBomb? "bomb": "free" ) + " Score:" + getScore());
+				//System.out.println((isBomb? "bomb": "free" ) + " Score:" + getScore());
 			}
 		});
 		this.add(button);
@@ -95,17 +95,21 @@ public class BombPanel extends JPanel{
 		if(isClickable){
 			this.removeBombListner();
 			button.doClick();
+			isClickable = false;
 		}
 	}
+	public boolean isClickable(){
+		return this.isClickable;
+	}
 	public void removeBombListner(){
-		button.removeMouseListener(this.bombListener);
+		this.button.removeMouseListener(this.bombListener);
 	}
 	public void addBombListner(){
 		button.addMouseListener(this.bombListener);
 	}
 	public void setButtonListener(BombListener b){
 		this.bombListener = b;
-		button.addMouseListener(b);
+		this.addBombListner();
 	}
 	/*protected void paintComponent(Graphics g){
 		super.paintComponent(g);

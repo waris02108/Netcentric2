@@ -27,13 +27,14 @@ public class GameUIClient extends JPanel implements Runnable {
 	private JLabel opponentScore;
 	
 	
-	private static int seconds = 0;
+	private static int seconds = 1;
 	boolean myTurn;
 	JSONObject exString;
 	int maxMine;
 	Player player;
 	boolean isConnected;
 	Timer turnTimer;
+	boolean isFirstPlayer;
 	
 //	ObjectOutputStream out;
 //	ObjectInputStream in;
@@ -48,6 +49,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		
 		super();
 		player = new Player("Por");
+		
 		isConnected = false;
 		setGUI();
 		
@@ -83,11 +85,11 @@ public class GameUIClient extends JPanel implements Runnable {
 				bombGrid.setVisible(false);
 				createBombGrid();
 				add(bombGrid,BorderLayout.CENTER);
-				
+				repaint();
 			}	
 			
 		});
-		//add(reset,BorderLayout.EAST);
+		add(reset,BorderLayout.SOUTH);
 		createGameHUD();
 		gameHUD.setPreferredSize(new Dimension(400,1000));
 		add(gameHUD,BorderLayout.EAST);
@@ -99,8 +101,9 @@ public class GameUIClient extends JPanel implements Runnable {
 		JPanel profile = new JPanel();
 		profile.setLayout(new GridLayout(1,2));
 		JPanel playerPanel = new JPanel(new GridLayout(2,1));
-		playerName = new JLabel("Player1");
-		playerScore = new JLabel("Score:");
+		playerName = new JLabel("Player1:"+this.player.getName());
+		playerScore = new JLabel("Score:"+0);
+		
 		playerPanel.add(playerName);
 		playerPanel.add(playerScore);
 		
@@ -123,35 +126,37 @@ public class GameUIClient extends JPanel implements Runnable {
 		timerPanel.add(timerTitle);
 		timerPanel.add(timerLabel);
 		gameHUD.add(timerPanel);
-		startTimer();
+		createTimer();
 	}
 	private void createNewGridPanel(){
 		bombGrid = new JPanel();
 		
 		bombGrid.setLayout(new GridLayout(6,6));
 	}
-	private void startTimer(){
-		
+	private void createTimer(){
+		//GameUIClient.seconds = 1;
 		ActionListener timerAct = new ActionListener(){
-
+			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				timerLabel.setText("Left:"+seconds);
-				seconds++;
+				timerLabel.setText("Time Left:"+seconds+"s");
+				
 				if(seconds >10) {
-					turnTimer.stop();
-					seconds = 0;
-					startTimer();
+					//turnTimer.stop();
+					seconds = 1;
+					//startTimer();
 					// opponent turn
-//					myTurn = false;
-//					setFieldTurn();
+					myTurn = false;
+					setFieldTurn();
+					out.println("NextTurn");
 				} 
+				seconds++;
 			}
 			
 		};
 		turnTimer = new Timer(1000,timerAct);
-		turnTimer.start();
+		//if(myTurn)turnTimer.start();
 	}
 	private void createBombGrid(){
 		createNewGridPanel();
@@ -194,25 +199,34 @@ public class GameUIClient extends JPanel implements Runnable {
 
 	public void processBombGrid(int index){
 		
-		this.bombField[index].clickButton();
 		myTurn = true;
 		setFieldTurn();
+		this.bombField[index].clickButton();
+		
+		
 		 
 	}
 	public void sendCurrentBombGrid(int index){
 //		if(myTurn){
 			this.myTurn=false;
+			
+			
 			setFieldTurn();
+			
+			
 			out.println(index);
-			System.out.println(index);
+			//System.out.println(index);
 			
 			
 //		}
 	}
 	public void computeScore(int panel) {
+		if(bombField[panel].isClickable()){
 		if(bombField[panel].checkBomb()){
-			Main.player1.addScore();
-			
+			this.player.addScore();
+			this.playerScore.setText("Score:"+player.getScore());
+			//out.println("Score"+player.getScore());
+		}
 		}
 		
 	}
@@ -247,13 +261,17 @@ public class GameUIClient extends JPanel implements Runnable {
 	public void setFieldTurn(){
 		
 		if(myTurn){
-			this.opponentName.setText("Your Turn");
-			
+			//this.opponentName.setText("Your Turn");
+			this.turnTimer.restart();
 			for(int i = 0; i<this.bombField.length;i++){
 				bombField[i].setButtonEnable();
 			}
 		} else {
-			this.opponentName.setText("Your Opponent Turn");
+			//this.opponentName.setText("Your Opponent Turn");
+			this.timerLabel.setText("Wait for your opponent");
+			this.turnTimer.stop();
+			GameUIClient.seconds = 1;
+			
 			for(int i = 0; i<this.bombField.length;i++){
 				bombField[i].setButtonDisable();
 			}
@@ -268,19 +286,27 @@ public class GameUIClient extends JPanel implements Runnable {
 			try {
 			
 				String indexString = in.readLine();
-				System.out.println(indexString);
+				System.out.println("In run"+indexString);
 				if(indexString.equals("Start")){
 					sendSameBombGrid();
 				} else if (indexString.startsWith("Waiting")){
 					System.out.println("Wait for grid");
 				} else if(indexString.startsWith("F")){
 					setReceiveField(indexString);
-				} else if (indexString.startsWith("T")){
+				} else if (indexString.equals("TimeYourTurn")){
+					this.myTurn = true;
+					this.setFieldTurn();
+					
+				} 
+				
+				else if (indexString.startsWith("T")){
 					String testTurn = indexString.substring(1);
 					if(testTurn.equals("First")){
 						
 						this.myTurn = true;
+					
 						this.setFieldTurn();
+						
 					} else {
 						this.myTurn = false;
 						this.setFieldTurn();
