@@ -29,7 +29,7 @@ public class BombPanel extends JPanel{
 		isClickable = true;
 		Image ques = null;
 		try {
-			ques = ImageIO.read(new File("question.gif"));
+			ques = ImageIO.read(new File("question2.gif"));
 			bombImg = ImageIO.read(new File("bomb.gif"));
 			freeImg = ImageIO.read(new File("free.gif"));
 		} catch (IOException e) {
@@ -67,11 +67,11 @@ public class BombPanel extends JPanel{
 	}
 	public void setButtonDisable(){
 		this.button.setEnabled(false);
-		this.removeBombListner();
+		this.removeBombListener();
 	}
 	public void setButtonEnable(){
 		this.button.setEnabled(true);
-		this.addBombListner();
+		this.addBombListener();
 	}
 	public void resetShowImage(){
 		if(isBomb)setImage = bombImg;
@@ -93,7 +93,7 @@ public class BombPanel extends JPanel{
 	}
 	public void clickButton(){
 		if(isClickable){
-			this.removeBombListner();
+			this.removeBombListener();
 			button.doClick();
 			isClickable = false;
 		}
@@ -101,15 +101,15 @@ public class BombPanel extends JPanel{
 	public boolean isClickable(){
 		return this.isClickable;
 	}
-	public void removeBombListner(){
+	public void removeBombListener(){
 		this.button.removeMouseListener(this.bombListener);
 	}
-	public void addBombListner(){
-		button.addMouseListener(this.bombListener);
+	public void addBombListener(){
+		this.button.addMouseListener(this.bombListener);
 	}
 	public void setButtonListener(BombListener b){
 		this.bombListener = b;
-		this.addBombListner();
+		//this.addBombListener();
 	}
 	/*protected void paintComponent(Graphics g){
 		super.paintComponent(g);

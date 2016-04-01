@@ -32,9 +32,10 @@ public class GameUIClient extends JPanel implements Runnable {
 	JSONObject exString;
 	int maxMine;
 	Player player;
+	Player opponent;
 	boolean isConnected;
 	Timer turnTimer;
-	boolean isFirstPlayer;
+	boolean isOpponentNull = false;
 	
 //	ObjectOutputStream out;
 //	ObjectInputStream in;
@@ -55,6 +56,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		
 		
 	}
+	
 	public void start(){
 		try{
 			con = new Socket("127.0.0.1",1256);
@@ -93,6 +95,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		createGameHUD();
 		gameHUD.setPreferredSize(new Dimension(400,1000));
 		add(gameHUD,BorderLayout.EAST);
+		
 		this.setVisible(true);
 	}
 	private void createGameHUD(){
@@ -109,7 +112,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		
 		JPanel opponentPanel = new JPanel(new GridLayout(2,1));
 		opponentName = new JLabel("Player2");
-		opponentScore = new JLabel("Score:");
+		opponentScore = new JLabel("Score:0");
 		opponentPanel.add(opponentName);
 		opponentPanel.add(opponentScore);
 		
@@ -127,6 +130,16 @@ public class GameUIClient extends JPanel implements Runnable {
 		timerPanel.add(timerLabel);
 		gameHUD.add(timerPanel);
 		createTimer();
+	}
+	public void tempPromptName(){
+		String name = JOptionPane.showInputDialog("Please Input your name");
+		this.player = new Player(name);
+		this.playerName.setText("Player1:"+this.player.getName());
+		JOptionPane.showMessageDialog(this, "Welcome "+this.player.getName(),"Welcome",JOptionPane.INFORMATION_MESSAGE);
+		//out.println("NAME:"+this.player.getName());
+	}
+	private void synchronizeStart(){
+		
 	}
 	private void createNewGridPanel(){
 		bombGrid = new JPanel();
@@ -172,7 +185,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		for(int i = 0; i<36 ;i++){
 			bombField[i] = new BombPanel();
 			bombField[i].setButtonListener(new BombListener(this,i));
-			//bombField[i].setButtonListener();
+		//	bombField[i].addBombListener();
 			if(count == mine) {
 				bombField[i].setBomb(false); continue;
 			}
@@ -202,7 +215,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		myTurn = true;
 		setFieldTurn();
 		this.bombField[index].clickButton();
-		
+		this.computeScore(index,false);
 		
 		 
 	}
@@ -220,14 +233,19 @@ public class GameUIClient extends JPanel implements Runnable {
 			
 //		}
 	}
-	public void computeScore(int panel) {
-		if(bombField[panel].isClickable()){
+	public void computeScore(int panel,boolean isPlayer) {
+	
 		if(bombField[panel].checkBomb()){
+			if(isPlayer){
 			this.player.addScore();
 			this.playerScore.setText("Score:"+player.getScore());
 			//out.println("Score"+player.getScore());
+			} else {
+				this.opponent.addScore();
+				this.opponentScore.setText("Score:"+this.opponent.getScore());
+			}
 		}
-		}
+		
 		
 	}
 	private void sendSameBombGrid(){
@@ -291,13 +309,22 @@ public class GameUIClient extends JPanel implements Runnable {
 					sendSameBombGrid();
 				} else if (indexString.startsWith("Waiting")){
 					System.out.println("Wait for grid");
+					
 				} else if(indexString.startsWith("F")){
+					
 					setReceiveField(indexString);
+					this.isOpponentNull = true;
 				} else if (indexString.equals("TimeYourTurn")){
+					
+					this.sendPlayerName();
 					this.myTurn = true;
 					this.setFieldTurn();
 					
-				} 
+				} else if (indexString.startsWith("Opponent")){
+					this.isOpponentNull = false;
+					this.opponent = new Player(indexString.substring(indexString.indexOf("Opponent")+8));
+					this.opponentName.setText("Player2:"+this.opponent.getName());
+				}
 				
 				else if (indexString.startsWith("T")){
 					String testTurn = indexString.substring(1);
@@ -334,6 +361,13 @@ public class GameUIClient extends JPanel implements Runnable {
 	
 	
 	
+	private void sendPlayerName() {
+		// TODO Auto-generated method stub
+		if(isOpponentNull){
+			out.println("NAME:"+this.player.getName());
+		}
+	}
+
 	public static void main(String [] args) throws IOException{
 		JFrame frame = new JFrame();
 		GameUIClient s = new GameUIClient();
@@ -341,6 +375,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		//frame.pack();
 		frame.setSize(new Dimension(1000,800)); frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		s.tempPromptName();
 		s.start();
 		
 	}

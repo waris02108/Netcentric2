@@ -83,6 +83,7 @@ public class Server extends JPanel{
 		int id;
 		Socket con;
 		int pairId;
+		String name;
 		
 		final int NUM_REPEAT = 5;
 		public TestRunnable(int id,Socket con){
@@ -154,6 +155,8 @@ public class Server extends JPanel{
 	            		sendToPair(Server.inputLine);
 	            	} else if (Server.inputLine.equals("NextTurn")){
 	            		sendToPair("TimeYourTurn");
+	            	} else if (Server.inputLine.startsWith("NAME:")){
+	            		sendToPair("Opponent"+Server.inputLine.substring(Server.inputLine.indexOf("NAME:")+5));
 	            	}
 	            	
 	            	else {

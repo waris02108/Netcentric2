@@ -17,7 +17,7 @@ class BombListener extends MouseAdapter {
 		
 		System.out.println("block"+panel);
 		
-		game.computeScore(panel);
+		game.computeScore(panel,true);
 		game.sendCurrentBombGrid(panel);
 		
 		//game.processBombGrid(panel);

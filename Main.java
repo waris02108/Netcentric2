@@ -53,7 +53,8 @@ public class Main {
 			
 		});
 		button2.setPreferredSize(new Dimension(300,300));
-		
+		String ez = "OpponentKWAINGOP";
+		System.out.println(ez.substring(ez.indexOf("Opponent")+8));
 		main.add(button);
 		main.add(button2);
 		button2.setEnabled(false);
