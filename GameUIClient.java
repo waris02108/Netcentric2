@@ -27,7 +27,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	private JLabel opponentScore;
 	
 	
-	private static int seconds = 1;
+	private static int seconds = 10;
 	boolean myTurn;
 	JSONObject exString;
 	int maxMine;

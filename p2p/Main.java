@@ -43,12 +43,7 @@ public class Main extends JPanel implements Runnable {
 	public void init(){
 		//createSound();
 		welcome = new MyMineWelcome();
-		try {
-			gameController = new GameUIClient();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 		this.add(welcome);
 	}
 	public void start() {
@@ -64,16 +59,28 @@ public class Main extends JPanel implements Runnable {
 		} else if (currentState == GameState.GAME_PLAYING_SERVER){
 			removeAll();
 			revalidate();
+			try {
+				gameController = new GameUIClient(true);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			add(gameController);
-			gameController.setServer(true);
+			//gameController.setServer(true);
 			gameController.tempPromptName();
 			gameController.start();
 			currentState = GameState.GAME_PLAYING_READY;
 		} else if(currentState == GameState.GAME_PLAYING_CLIENT){
 			removeAll();
 			revalidate();
+			try {
+				gameController = new GameUIClient(false);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			add(gameController);
-			gameController.setServer(false);
+			//gameController.setServer(false);
 			gameController.tempPromptName();
 			gameController.start();
 			currentState = GameState.GAME_PLAYING_READY;
@@ -183,7 +190,7 @@ public class Main extends JPanel implements Runnable {
 //			audioIn4 = AudioSystem.getAudioInputStream(soundFile4);
 //			DeckClip = AudioSystem.getClip();
 //			DeckClip.open(audioIn4);
-//			
+//			10.202.241.190
 //			audioIn5 = AudioSystem.getAudioInputStream(soundFile5);
 //			ChooseClip = AudioSystem.getClip();
 //			ChooseClip.open(audioIn5);

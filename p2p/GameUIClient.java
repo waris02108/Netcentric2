@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import org.json.JSONObject;
@@ -28,7 +29,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	private JLabel opponentScore;
 	
 	
-	private static int seconds = 1;
+	private static int seconds = 10;
 	boolean myTurn;
 	boolean confirmRematch;
 	JSONObject exString;
@@ -58,6 +59,12 @@ public class GameUIClient extends JPanel implements Runnable {
 		setGUI();
 		
 		
+	}
+	public GameUIClient(boolean isServer) throws IOException {
+		super();
+		isConnected = false;
+		this.isServer = isServer;
+		setGUI();
 	}
 	
 	public void setServer(boolean isServer){
@@ -105,8 +112,11 @@ public class GameUIClient extends JPanel implements Runnable {
 		outputThread = new Thread(this);
 		outputThread.start();
 		if(isServer) {
-			out.println("Start");
+			this.isOpponentNull = true;
+			out.println("MaxMine:"+this.maxMine);
+			this.sendSameBombGrid();
 			this.randomTurn();
+			
 		}
 	
 	}
@@ -130,6 +140,8 @@ public class GameUIClient extends JPanel implements Runnable {
 	private void setGUI(){
 		this.setPreferredSize(new Dimension(1000,800));
 		this.setLayout(new BorderLayout());
+		if(isServer)this.promptMineAmount();
+		else this.maxMine = 11;
 		createBombGrid();
 		add(bombGrid,BorderLayout.CENTER);
 		JButton reset =new JButton("RESET");
@@ -155,10 +167,10 @@ public class GameUIClient extends JPanel implements Runnable {
 		add(reset,BorderLayout.SOUTH);
 		createGameHUD();
 		gameHUD.setPreferredSize(new Dimension(400,1000));
-		add(gameHUD,BorderLayout.EAST);
-		
+		add(gameHUD,BorderLayout.EAST);		
 		this.setVisible(true);
 	}
+	
 	private void createGameHUD(){
 		gameHUD = new JPanel();
 		gameHUD.setLayout(new GridLayout(3,1));
@@ -199,9 +211,16 @@ public class GameUIClient extends JPanel implements Runnable {
 		JOptionPane.showMessageDialog(this, "Welcome "+this.player.getName(),"Welcome",JOptionPane.INFORMATION_MESSAGE);
 		//out.println("NAME:"+this.player.getName());
 	}
-//	private void synchronizeStart(){
-//		
-//	}
+	public void promptMineAmount(){
+		String mine = JOptionPane.showInputDialog("Please Specify your number of mine <36");
+		if(mine.equals("")){
+			maxMine = 11;
+		} else {
+			this.maxMine = Integer.parseInt(mine);
+		}
+		
+		
+	}
 	private void createNewGridPanel(){
 		bombGrid = new JPanel();
 		
@@ -216,9 +235,9 @@ public class GameUIClient extends JPanel implements Runnable {
 				// TODO Auto-generated method stub
 				timerLabel.setText("Time Left:"+seconds+"s");
 				
-				if(seconds >10) {
+				if(seconds <0) {
 					//turnTimer.stop();
-					seconds = 1;
+					seconds = 10;
 					//startTimer();
 					// opponent turn
 					myTurn = false;
@@ -226,7 +245,7 @@ public class GameUIClient extends JPanel implements Runnable {
 					out.println("TimeYourTurn");
 					
 				} 
-				seconds++;
+				seconds--;
 			}
 			
 		};
@@ -242,7 +261,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	}
 	private void createBombGrid(){
 		createNewGridPanel();
-		resetBombGrid(11);
+		resetBombGrid(this.maxMine);
 		for(BombPanel panel:bombField){
 			bombGrid.add(panel);
 		}
@@ -250,7 +269,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	}
 	private void resetBombGrid(int mine){
 		int count = 0;
-		this.maxMine = mine;
+		//this.maxMine = mine;
 		bombField = new BombPanel[36];
 		for(int i = 0; i<36 ;i++){
 			bombField[i] = new BombPanel();
@@ -276,7 +295,6 @@ public class GameUIClient extends JPanel implements Runnable {
 		}
 		bombGrid.setVisible(true);
 		this.add(bombGrid,BorderLayout.CENTER);
-		
 		repaint();
 	}
 	
@@ -368,7 +386,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		
 		ArrayList<Integer> bomb = new ArrayList<Integer>();
 		String temp = indexString.substring(1,indexString.length());
-		for(int i =0; i<11;i++){
+		for(int i =0; i<this.maxMine;i++){
 			if(temp.indexOf(" ") == -1) break;
 			bomb.add(Integer.parseInt(temp.substring(0, temp.indexOf(" "))));
 			temp = temp.substring(temp.indexOf(" ")+1);
@@ -396,7 +414,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			//this.opponentName.setText("Your Opponent Turn");
 			this.timerLabel.setText("Wait for your opponent");
 			this.turnTimer.stop();
-			GameUIClient.seconds = 1;
+			GameUIClient.seconds = 10;
 			
 			for(int i = 0; i<this.bombField.length;i++){
 				bombField[i].setButtonDisable();
@@ -430,7 +448,11 @@ public class GameUIClient extends JPanel implements Runnable {
 					this.myTurn = true;
 					this.setFieldTurn();
 					
-				} else if (indexString.startsWith("NAME:")){
+				} else if (indexString.startsWith("MaxMine:")){
+					String mine = indexString.substring(8);
+					this.maxMine = Integer.parseInt(mine);
+				} 
+				else if (indexString.startsWith("NAME:")){
 					
 					this.opponent = new Player(indexString.substring(indexString.indexOf("NAME:")+5));
 					this.opponentName.setText("Player2:"+this.opponent.getName());
@@ -452,7 +474,7 @@ public class GameUIClient extends JPanel implements Runnable {
 					}
 				} else if (indexString.equals("Reset")){
 					turnTimer.stop();
-					seconds = 1;
+					seconds = 10;
 					this.randomTurn();
 					this.resetScore();
 				}
@@ -461,7 +483,7 @@ public class GameUIClient extends JPanel implements Runnable {
 					//if(this.opponent.equals(null)) this.sendPlayerName();
 					String testTurn = indexString.substring(1);
 					turnTimer.stop();
-					seconds = 1;
+					seconds = 10;
 					if(testTurn.equals("First")){
 						
 						this.myTurn = true;
@@ -501,7 +523,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			out.println("NAME:"+this.player.getName());
 		//}
 	}
-
+	
 	/*public static void main(String [] args) throws IOException{
 		JFrame frame = new JFrame();
 		GameUIClient s = new GameUIClient();
@@ -513,6 +535,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		s.start();
 		
 	}*/
+	
 	
 	
 	
