@@ -1,3 +1,4 @@
+package p2p;
 import java.awt.Dimension;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class Server extends JPanel{
 	private Socket conn;
 	private String host;
 	private int port;
-	private ClientThread[] client;
+	//private ClientThread[] client;
 	private Thread serverThread;
 	public Server() throws IOException{
 		setGUI();
@@ -74,8 +75,8 @@ public class Server extends JPanel{
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		mainFrame.setVisible(true);
 		s.startPlay();
-		Main.player1 = new Player("Por");
-		Main.player2 = new Player("Ezreal");
+//		Main.player1 = new Player("Por");
+//		Main.player2 = new Player("Ezreal");
 		
 	}
 	//server for each one to handle dataflow

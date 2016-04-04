@@ -1,3 +1,4 @@
+package p2p;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -34,12 +35,12 @@ public class MyMineWelcome extends JPanel {
 	JTextArea textView = new JTextArea();
 	JScrollPane scrolledTextView = new JScrollPane(textView);
 	int id = 0;
-	final static String FRAME_TITLE = "Client";
+
 	
 	JPanel panel;
 	JButton clientButton;
 	JButton serverButton;
-	public MyMineWelcome(String title){
+	public MyMineWelcome(){
 		super();
 		setGUI();
 	}
@@ -71,10 +72,11 @@ public class MyMineWelcome extends JPanel {
 					if (results == JOptionPane.OK_OPTION) {
 						if (!inputAddr.getText().equals("")
 								&& !inputPort.getText().equals("")) {
-							
 							System.out.println("Address: " + inputAddr.getText());
 							System.out.println("Port: " + inputPort.getText());
-							//Main.ip = inputAddr.getText();
+							Main.ip = inputAddr.getText();
+							Main.port = inputPort.getText();
+							Main.currentState = Main.GameState.GAME_PLAYING_CLIENT;
 							break;
 						} else {
 							results = JOptionPane.showConfirmDialog(null, inputPanel,
@@ -101,6 +103,15 @@ public class MyMineWelcome extends JPanel {
 		
 		
 		serverButton = new JButton("Create Room");
+		serverButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				Main.currentState = Main.GameState.GAME_PLAYING_SERVER;
+			}
+			
+		});
 		panel.add(clientButton);
 		panel.add(serverButton);
 		add(panel,BorderLayout.CENTER);
@@ -109,7 +120,7 @@ public class MyMineWelcome extends JPanel {
 		textView.setForeground(Color.CYAN);
 		textView.setBackground(Color.BLACK);
 		textView.setFont(new Font("Arirl",Font.ITALIC,20));
-		
+		this.setVisible(true);
 	}
 	
 	
@@ -130,15 +141,15 @@ public class MyMineWelcome extends JPanel {
 //            }
 //        });
 //	}
-	public static void main(String[] args){
-		MyMineWelcome main = new MyMineWelcome(FRAME_TITLE);
-		JFrame mainFrame = new JFrame();
-		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainFrame.setPreferredSize(new Dimension(400,400));
-		mainFrame.add(main);
-		mainFrame.pack();
-		mainFrame.setVisible(true);
-	}
+//	public static void main(String[] args){
+//		MyMineWelcome main = new MyMineWelcome();
+//		JFrame mainFrame = new JFrame();
+//		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		mainFrame.setPreferredSize(new Dimension(400,400));
+//		mainFrame.add(main);
+//		mainFrame.pack();
+//		mainFrame.setVisible(true);
+//	}
 	
 	
 }
