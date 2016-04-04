@@ -27,7 +27,8 @@ public class GameUIClient extends JPanel implements Runnable {
 	private JLabel opponentName;
 	private JLabel playerScore;
 	private JLabel opponentScore;
-	
+	private JLabel maxMineCount;
+	private JLabel mineLeft;
 	
 	private static int seconds = 10;
 	boolean myTurn;
@@ -173,7 +174,7 @@ public class GameUIClient extends JPanel implements Runnable {
 	
 	private void createGameHUD(){
 		gameHUD = new JPanel();
-		gameHUD.setLayout(new GridLayout(3,1));
+		gameHUD.setLayout(new GridLayout(4,1));
 		JPanel profile = new JPanel();
 		profile.setLayout(new GridLayout(1,2));
 		JPanel playerPanel = new JPanel(new GridLayout(2,1));
@@ -193,6 +194,16 @@ public class GameUIClient extends JPanel implements Runnable {
 		profile.add(opponentPanel);
 		gameHUD.add(profile);
 		
+		//Mine count + Maximum Mine
+		JPanel minePanel = new JPanel();
+		this.mineLeft = new JLabel("Mine Left:"+(this.maxMine-this.mineCount));
+		this.maxMineCount = new JLabel("Total Mine:"+this.maxMine);
+		minePanel.add(mineLeft);
+		minePanel.add(maxMineCount);
+		
+		
+		
+		
 		//TIMER LABEL
 		JPanel timerPanel = new JPanel();
 		JLabel timerTitle = new JLabel("Timer");
@@ -202,6 +213,7 @@ public class GameUIClient extends JPanel implements Runnable {
 		timerPanel.add(timerTitle);
 		timerPanel.add(timerLabel);
 		gameHUD.add(timerPanel);
+		gameHUD.add(minePanel);
 		createTimer();
 	}
 	public void tempPromptName(){
@@ -330,6 +342,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			this.player.addScore();
 			this.playerScore.setText("Score:"+player.getScore());
 			this.mineCount++;
+			
 			//out.println("Score"+player.getScore());
 			} else {
 				this.opponent.addScore();
@@ -337,6 +350,7 @@ public class GameUIClient extends JPanel implements Runnable {
 				this.mineCount++;
 			}
 		}
+		this.mineLeft.setText("Mine Left:"+(this.maxMine-this.mineCount));
 		this.checkScore();
 		
 	}
@@ -346,7 +360,7 @@ public class GameUIClient extends JPanel implements Runnable {
 			Object options[] = {"Quit", "Rematch"};
 			if(this.player.getScore()>this.opponent.getScore()){
 				this.turnTimer.stop();
-				Object selected = JOptionPane.showInputDialog(this,"Congratulation","You Win!!!",
+				Object selected = JOptionPane.showInputDialog(this,"Congratulation, You got"+this.player.getScore(),"You Win!!!",
 						JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
 				if(selected.equals(options[0])){
 					System.exit(0);
@@ -357,7 +371,7 @@ public class GameUIClient extends JPanel implements Runnable {
 				}
 			} else {
 				this.turnTimer.stop();
-				Object selected = JOptionPane.showInputDialog(this,"Defeat","You Lose!!!",
+				Object selected = JOptionPane.showInputDialog(this,"Defeat, You got"+this.player.getScore(),"You Lose!!!",
 						JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
 				if(selected.equals(options[0])){
 					out.println("Quit");
@@ -451,6 +465,8 @@ public class GameUIClient extends JPanel implements Runnable {
 				} else if (indexString.startsWith("MaxMine:")){
 					String mine = indexString.substring(8);
 					this.maxMine = Integer.parseInt(mine);
+					maxMineCount.setText("Total Mine:"+this.maxMine);
+					this.mineLeft.setText("Mine Left:"+(this.maxMine-this.mineCount));
 				} 
 				else if (indexString.startsWith("NAME:")){
 					
