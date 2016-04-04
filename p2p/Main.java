@@ -30,6 +30,7 @@ public class Main extends JPanel implements Runnable {
 	static MyMineWelcome welcome;
 	static GameState currentState = GameState.WELCOME;
 	static int mineCount = 0;
+	static Clip welcomeClip,gameClip;
 	///IP + PORT
 	static String ip = "";
 	static String port ="";
@@ -43,7 +44,7 @@ public class Main extends JPanel implements Runnable {
 	public void init(){
 		//createSound();
 		welcome = new MyMineWelcome();
-		
+		createSound();
 		this.add(welcome);
 	}
 	public void start() {
@@ -55,10 +56,12 @@ public class Main extends JPanel implements Runnable {
 		if(currentState == GameState.WELCOME){
 			revalidate();
 			add(welcome);
+			welcomeClip.loop(-1);
 			repaint();
 		} else if (currentState == GameState.GAME_PLAYING_SERVER){
 			removeAll();
 			revalidate();
+			welcomeClip.stop();
 			try {
 				gameController = new GameUIClient(true);
 			} catch (IOException e) {
@@ -66,6 +69,7 @@ public class Main extends JPanel implements Runnable {
 				e.printStackTrace();
 			}
 			add(gameController);
+			gameClip.loop(-1);
 			//gameController.setServer(true);
 			gameController.tempPromptName();
 			gameController.start();
@@ -73,6 +77,7 @@ public class Main extends JPanel implements Runnable {
 		} else if(currentState == GameState.GAME_PLAYING_CLIENT){
 			removeAll();
 			revalidate();
+			welcomeClip.stop();
 			try {
 				gameController = new GameUIClient(false);
 			} catch (IOException e) {
@@ -80,6 +85,7 @@ public class Main extends JPanel implements Runnable {
 				e.printStackTrace();
 			}
 			add(gameController);
+			gameClip.loop(-1);
 			//gameController.setServer(false);
 			gameController.tempPromptName();
 			gameController.start();
@@ -163,50 +169,37 @@ public class Main extends JPanel implements Runnable {
 			e.printStackTrace();
 		}
 	}
-//	public void createSound() {
-//		File soundFile1 = new File("sounds/login2.wav");
-//		File soundFile2 = new File("sounds/menu.wav");
-//		File soundFile3 = new File("sounds/battle.wav");
-//		File soundFile4 = new File("sounds/deck.wav");
-//		File soundFile5 = new File("sounds/battle2.wav");
-//		AudioInputStream audioIn = null;
-//		AudioInputStream audioIn2 = null;
-//		AudioInputStream audioIn3 = null;
-//		AudioInputStream audioIn4 = null;
-//		AudioInputStream audioIn5 = null;
-//		try {
-//			audioIn = AudioSystem.getAudioInputStream(soundFile1);
-//			loginClip = AudioSystem.getClip();
-//			loginClip.open(audioIn);
-//			
-//			audioIn2 = AudioSystem.getAudioInputStream(soundFile2);
-//			MenuClip = AudioSystem.getClip();
-//			MenuClip.open(audioIn2);
-//			
-//			audioIn3 = AudioSystem.getAudioInputStream(soundFile3);
-//			BattleClip = AudioSystem.getClip();
-//			BattleClip.open(audioIn3);
-//			
-//			audioIn4 = AudioSystem.getAudioInputStream(soundFile4);
-//			DeckClip = AudioSystem.getClip();
-//			DeckClip.open(audioIn4);
-//			10.202.241.190
-//			audioIn5 = AudioSystem.getAudioInputStream(soundFile5);
-//			ChooseClip = AudioSystem.getClip();
-//			ChooseClip.open(audioIn5);
-//			
-//			
-//		} catch (UnsupportedAudioFileException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (LineUnavailableException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//	}
+	public void createSound() {
+	
+		File soundFile1 = new File("battle.wav");
+	
+		File soundFile2 = new File("battle2.wav");
+		AudioInputStream audioIn = null;
+		AudioInputStream audioIn2 = null;
+		
+		try {
+			audioIn = AudioSystem.getAudioInputStream(soundFile1);
+			welcomeClip = AudioSystem.getClip();
+			welcomeClip.open(audioIn);
+			
+			audioIn2 = AudioSystem.getAudioInputStream(soundFile2);
+			gameClip = AudioSystem.getClip();
+			gameClip.open(audioIn2);
+			
+			
+			
+			
+		} catch (UnsupportedAudioFileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (LineUnavailableException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
 }
