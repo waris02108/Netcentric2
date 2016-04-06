@@ -5,11 +5,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -17,6 +20,8 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketException;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -40,15 +45,35 @@ public class MyMineWelcome extends JPanel {
 	JPanel panel;
 	JButton clientButton;
 	JButton serverButton;
-	public MyMineWelcome(){
+	public MyMineWelcome() throws IOException{
 		super();
 		setGUI();
 	}
 	
-	public void setGUI(){
+	public void setGUI() {
 		setLayout(new BorderLayout());
+		Image mine = null;
+		try {
+			mine = ImageIO.read(new File("logo.png"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Image newImg = mine.getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+		ImageIcon min = new ImageIcon(newImg);
+		JLabel mineLogo = new JLabel(min);
+		
+		
+	
 		JLabel titleBanner = new JLabel("Welcome to FindMyMine!!");
-		add(titleBanner,BorderLayout.NORTH);
+		JPanel title = new JPanel();
+		
+		//title.setLayout(new GridLayout(2,1));
+		title.add(titleBanner);
+		title.add(mineLogo);
+		
+		
+		add(title,BorderLayout.NORTH);
 		panel = new JPanel(new GridLayout(1,2));
 		clientButton = new JButton("Join Server");
 		clientButton.addActionListener(new ActionListener(){
@@ -56,6 +81,7 @@ public class MyMineWelcome extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				JPanel inputPanel = new JPanel();
 				JTextField inputAddr = new JTextField();
+				
 				JTextField inputPort = new JTextField();
 				JLabel addrLabel = new JLabel("Address");
 				JLabel portLabel = new JLabel("Port");

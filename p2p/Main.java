@@ -43,7 +43,12 @@ public class Main extends JPanel implements Runnable {
 	}
 	public void init(){
 		//createSound();
-		welcome = new MyMineWelcome();
+		try {
+			welcome = new MyMineWelcome();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		createSound();
 		this.add(welcome);
 	}
@@ -51,6 +56,7 @@ public class Main extends JPanel implements Runnable {
 		thread = new Thread(this);
 		thread.start();
 	}
+	
 	public void update(){
 		//currentState = state;
 		if(currentState == GameState.WELCOME){
@@ -150,15 +156,14 @@ public class Main extends JPanel implements Runnable {
 		}
 		
 	}
-	public void insertBGM(String sound) {
+	public static void insertBGM(String sound) {
 		File soundFile = new File(sound);
-		AudioInputStream audioIn = null;
+		AudioInputStream audioIn4 = null;
 		try {
-			audioIn = AudioSystem.getAudioInputStream(soundFile);
+			audioIn4 = AudioSystem.getAudioInputStream(soundFile);
 			Clip clip2 = AudioSystem.getClip();
-			clip2.open(audioIn);
-			
-				clip2.start();
+			clip2.open(audioIn4);
+			clip2.start();
 				
 			
 		} catch (IOException e) {
@@ -169,11 +174,12 @@ public class Main extends JPanel implements Runnable {
 			e.printStackTrace();
 		}
 	}
+	
 	public void createSound() {
 	
-		File soundFile1 = new File("battle.wav");
+		File soundFile1 = new File("bensound-littleidea.wav");
 	
-		File soundFile2 = new File("battle2.wav");
+		File soundFile2 = new File("bgm2.wav");
 		AudioInputStream audioIn = null;
 		AudioInputStream audioIn2 = null;
 		

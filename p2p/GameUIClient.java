@@ -357,9 +357,10 @@ public class GameUIClient extends JPanel implements Runnable {
 	private void checkScore(){
 		if(this.mineCount >= this.maxMine){
 			out.println("END");
+			this.turnTimer.stop();
 			Object options[] = {"Quit", "Rematch"};
 			if(this.player.getScore()>this.opponent.getScore()){
-				this.turnTimer.stop();
+				
 				Object selected = JOptionPane.showInputDialog(this,"Congratulation, You got"+this.player.getScore(),"You Win!!!",
 						JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
 				if(selected.equals(options[0])){
@@ -369,8 +370,22 @@ public class GameUIClient extends JPanel implements Runnable {
 					this.confirmRematch = true;
 					out.println("Rematch");
 				}
-			} else {
-				this.turnTimer.stop();
+			} else if(this.player.getScore() == this.opponent.getScore() ){
+				
+				Object selected = JOptionPane.showInputDialog(this,"Draw, You got"+this.player.getScore(),"It a Tie!!!",
+						JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
+				if(selected.equals(options[0])){
+					System.exit(0);
+				} else {
+					this.createBombGrid();
+					this.confirmRematch = true;
+					out.println("Rematch");
+				}
+			}
+			
+			
+			else {
+				
 				Object selected = JOptionPane.showInputDialog(this,"Defeat, You got"+this.player.getScore(),"You Lose!!!",
 						JOptionPane.INFORMATION_MESSAGE,null,options,options[0]);
 				if(selected.equals(options[0])){
