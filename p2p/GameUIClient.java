@@ -298,6 +298,9 @@ public class GameUIClient extends JPanel implements Runnable {
 		if(isConnected)this.sendSameBombGrid();
 		
 	}
+	private void randomBomb(int mine){
+		
+	}
 	private void setBombGrid(BombPanel grid[]){
 		createNewGridPanel();
 		for(int i = 0;i<this.bombField.length;i++){
